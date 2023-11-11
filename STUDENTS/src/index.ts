@@ -1,10 +1,7 @@
-import { $query, $update, Record, StableBTreeMap, Vec, match, Result, nat64, ic, Opt } from 'azle';
+import { $query, $update, Record, StableBTreeMap, match, Result, nat64, ic, Opt } from 'azle';
 import { v4 as uuidv4 } from 'uuid';
 
-// Now we make some models;
-//students, studentspayload, error
-
-type students = Record<{
+type Student = Record<{
     id: string;
     name: string;
     dateBirth: string;
@@ -14,11 +11,10 @@ type students = Record<{
     location: string;
     parent: string;
     createdAt: nat64;
-    updatedAt: nat64;
-
+    updatedAt: nat64 | null;
 }>;
 
-type studentspayload = Record<{
+type StudentPayload = Record<{
     id: string;
     name: string;
     dateBirth: string;
@@ -29,85 +25,79 @@ type studentspayload = Record<{
     parent: string;
     parentNumber: nat64;
     createdAt: nat64;
-    updatedAt: nat64;
-
+    updatedAt: nat64 | null;
 }>;
-const studentsStorage = new StableBTreeMap<string, students>(0, 44, 1024) ;
+
+const studentsStorage = new StableBTreeMap<string, Student>(0, 44, 1024);
 
 $update;
-export function CreateStudents(payload: Studentspayload): Result<students, string> {
-    const students : Students = {
+export function createStudent(payload: StudentPayload): Result<Student, string> {
+    const student: Student = {
         id: uuidv4(),
         createdAt: ic.time(),
         updatedAt: Opt.None,
         ...payload,
         parent: ic.caller(),
     };
-    studentsStorage.insert(students.id, students)
-    return Result.Ok<Students, string>(students)
+    studentsStorage.insert(student.id, student);
+    return Result.Ok<Student, string>(student);
 }
 
 $query;
-export function getStudentsById(id: string): Result<students, string> {
+export function getStudentById(id: string): Result<Student, string> {
     return match(studentsStorage.get(id), {
-        Some: (students) => Result.Ok<Students, string>(students),
-        None: () => Result.Err<Students, string>(`students with id=${id} not found.`),
+        Some: (student) => Result.Ok<Student, string>(student),
+        None: () => Result.Err<Student, string>(`Student with id=${id} not found.`),
     });
 }
 
 $query;
-export function getStudentsByName(name: string): Result<students, string> {
+export function getStudentByName(name: string): Result<Student, string> {
     const students = studentsStorage.values();
-    
-    const foundStudents = students.find((students) => students.name.toLowerCase() === name.toLowerCase());
-
-    if (foundStudents){
-        return Result.Ok<Students, string>(foundStudents);
+    const foundStudent = students.find((student) => student.name.toLowerCase() === name.toLowerCase());
+    if (foundStudent) {
+        return Result.Ok<Student, string>(foundStudent);
     }
-    return Result.Err <Students, string>(`Students with name ="${name}" not found.`);
+    return Result.Err<Student, string>(`Student with name="${name}" not found.`);
 }
 
 $query;
-export function getAllStudents(): Result<Vec<somestudents>, string> {
+export function getAllStudents(): Result<Student[], string> {
     return Result.Ok(studentsStorage.values());
 }
 
 $update;
-export function updatedStudents(id: string, payload: studentspayload): Result<students, string> {
+export function updateStudent(id: string, payload: StudentPayload): Result<Student, string> {
     return match(studentsStorage.get(id), {
-        Some: (existingStudents) => {
-            const updatedStudents: Students = {
-                ...existingStudents,
+        Some: (existingStudent) => {
+            const updatedStudent: Student = {
+                ...existingStudent,
                 ...payload,
                 updatedAt: Opt.some(ic.time()),
             };
-            studentsStorage.insert(updatedStudents.id, updatedStudents);
-            return Result.Ok<Students, string>(updatedStudents);
+            studentsStorage.insert(updatedStudent.id, updatedStudent);
+            return Result.Ok<Student, string>(updatedStudent);
         },
-        None: () => Result.Err<Students, string>(`students with id=${id} not found.`),
+        None: () => Result.Err<Student, string>(`Student with id=${id} not found.`),
     });
 }
 
 $update;
-export function deleteStudents(id: string): Result <Students, string> {
+export function deleteStudent(id: string): Result<Student, string> {
     return match(studentsStorage.get(id), {
-        Some: (existingStudents) => {
+        Some: (existingStudent) => {
             studentsStorage.remove(id);
-            return Result.Ok<Students, string>(existingStudents);
+            return Result.Ok<Student, string>(existingStudent);
         },
-        None: () => Result.Err<Students, string>(`Students with id=${id} not found.`),
+        None: () => Result.Err<Student, string>(`Student with id=${id} not found.`),
     });
 }
 
 globalThis.crypto = {
     //@ts-ignore
-    getRandomValues: () => {
-      let array = new Uint8Array(32);
-  
-      for (let i = 0; i < array.length; i++) {
-        array[i] = Math.floor(Math.random() * 256);
-      }
-  
-      return array;
+    getRandomValues: (array: Uint8Array) => {
+        for (let i = 0; i < array.length; i++) {
+            array[i] = Math.floor(crypto.getRandomValues(new Uint8Array(1))[0]);
+        }
     },
-  };
+};
