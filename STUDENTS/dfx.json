@@ -1,0 +1,13 @@
+{
+    "canisters": {
+        "STUDENTS": {
+            "type": "custom",
+            "main": "src/index.ts",
+            "candid": "src/index.did",
+            "build": "npx azle STUDENTS",
+            "wasm": ".azle/STUDENTS/STUDENTS.wasm",
+            "gzip": true
+        }
+    }
+}
+
