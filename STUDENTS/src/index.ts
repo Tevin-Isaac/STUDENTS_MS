@@ -1,5 +1,5 @@
-import { Canister, $query, $update, Ok, Opt, Record, Result, nat64, StableBTreeMap,Principal, match, ic, Vec, nat64} from 'azle';
-import {vd as uuidv4} from 'uuid';
+import { $query, $update, Record, StableBTreeMap, Vec, match, Result, nat64, ic, Opt } from 'azle';
+import { v4 as uuidv4 } from 'uuid';
 
 // Now we make some models;
 //students, studentspayload, error
@@ -8,7 +8,7 @@ type students = Record<{
     id: string;
     name: string;
     dateBirth: string;
-    dateAdmission;
+    dateAdmission: string;
     course: string;
     courseType: string;
     location: string;
@@ -22,21 +22,20 @@ type studentspayload = Record<{
     id: string;
     name: string;
     dateBirth: string;
-    dateAdmission;
+    dateAdmission: string;
     course: string;
     courseType: string;
     location: string;
-    parent: Principal;
+    parent: string;
     parentNumber: nat64;
     createdAt: nat64;
     updatedAt: nat64;
 
 }>;
-
 const studentsStorage = new StableBTreeMap<string, students>(0, 44, 1024) ;
 
 $update;
-export function CreateStudents(payload: Studentspayload): Result<Students, string> {
+export function CreateStudents(payload: Studentspayload): Result<students, string> {
     const students : Students = {
         id: uuidv4(),
         createdAt: ic.time(),
@@ -49,7 +48,7 @@ export function CreateStudents(payload: Studentspayload): Result<Students, strin
 }
 
 $query;
-export function getStudentsById(id: string): Result<Students, string> {
+export function getStudentsById(id: string): Result<students, string> {
     return match(studentsStorage.get(id), {
         Some: (students) => Result.Ok<Students, string>(students),
         None: () => Result.Err<Students, string>(`students with id=${id} not found.`),
@@ -57,7 +56,7 @@ export function getStudentsById(id: string): Result<Students, string> {
 }
 
 $query;
-export function getStudentsByName(name: string): Result<Students, string> {
+export function getStudentsByName(name: string): Result<students, string> {
     const students = studentsStorage.values();
     
     const foundStudents = students.find((students) => students.name.toLowerCase() === name.toLowerCase());
@@ -69,12 +68,12 @@ export function getStudentsByName(name: string): Result<Students, string> {
 }
 
 $query;
-export function getAllStudents(): Result<Vec<Students>, string> {
+export function getAllStudents(): Result<Vec<somestudents>, string> {
     return Result.Ok(studentsStorage.values());
 }
 
 $update;
-export function updatedStudents(id: string, payload: studentspayload): Result<Students, string> {
+export function updatedStudents(id: string, payload: studentspayload): Result<students, string> {
     return match(studentsStorage.get(id), {
         Some: (existingStudents) => {
             const updatedStudents: Students = {
@@ -112,4 +111,3 @@ globalThis.crypto = {
       return array;
     },
   };
-  
