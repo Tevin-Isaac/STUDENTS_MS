@@ -31,30 +31,40 @@ Make sure you have the following installed on your machine:
 
     iv->Codespaces 
        just click on the codespace and can acces the repo on the github without installing any files.
-       For this tutorial we shall be using the codespaces
+       For this tutorial we shall be using the local repo
 
 ## Navigating to Students_MS Directory
 
-3. Change your working directory to the `students_ms` directory using the `cd` command:
+3. Change your working directory to the `STUDENTS_MS` directory using the `cd` command:
+    check for the files that are on that directory and confirm whether the file is on the local repo. Once confimed proceed to the next level.
+    ```bash
+    ls
+    ```
 
     ```bash
-    cd student-database-icp/students_ms
+    cd STUDENTS_MS/
     ```
 
 ## Navigating to Students Directory
 
-4. Navigate further into the `students` directory:
+4. Navigate further into the `STUDENTS` directory:This is where the actual codebase is;
 
     ```bash
-    cd students
+    cd STUDENTS/
     ```
 
 ## Installing Dependencies
 
 5. Install project dependencies using npm:
+   *NOTE: NEVER SKIP THIS PROCESS AS THE CODE WILL NOT COMPILE AND IT WILL NEED NPM DEPENDANCIES
 
     ```bash
     npm install
+    ```
+    Check out whether the packages have been installed 
+      that is dfx.json packagelock.json and package.json 
+    ```bash
+    ls
     ```
 
 ## Starting the Replica (Clean)
@@ -74,7 +84,8 @@ Once the replica is started, you can access the student database system by openi
 ## Interacting with the Canister through Candid UI
 
 7. Open the Candid UI to interact with the canister:
-
+    
+    if it does not have any errors it will compile slowly if its the first time and after success u will receive a URL (usually `http://127.0.0.1:4943/?canisterId=r7inp-6aaaa-aaaaa-aaabq-cai`)
     ```bash
     dfx deploy
     ```
@@ -95,4 +106,4 @@ This project is licensed under the [MIT License](LICENSE). Feel free to modify a
 
 ---
 
-**Note:** Please check the navigations when trying to start the local replica as it will frustrate you by showing a response like  `Error: Cannot find dfx configuration file in the current working directory. Did you forget to create one?` so always confirm you are `pwd` is `STUDENTS`
+**Note:** Please check the navigations when trying to start the local replica as it will frustrate you by showing a response like  `Error: Cannot find dfx configuration file in the current working directory. Did you forget to create one?` so always confirm you;re `pwd` is `STUDENTS`
